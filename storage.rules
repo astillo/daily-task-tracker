@@ -1,0 +1,25 @@
+rules_version = '2';
+
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Default rule - deny all
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // Allow authenticated users to upload task photos
+    match /task-photos/{userId}/{date}/{fileName} {
+      // Allow read/write if the user is authenticated and the userId matches their auth ID
+      allow read, write: if request.auth != null;
+    }
+    
+    // For development with emulators, you can use this more permissive rule
+    // ENABLED FOR DEVELOPMENT - comment out when deploying to production
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
